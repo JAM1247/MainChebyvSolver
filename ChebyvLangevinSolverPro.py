@@ -36,7 +36,7 @@ def create_cell_fate_dynamics(a, theta1, theta2):
     
     return fx, fy
 
-# ROBUST: Keep the original working steady state finder and just improve it slightly
+# Keep the original working steady state finder and just improve it slightly
 def find_x_steady_states_y0(a, theta1):
     """Find steady states along y=0 line using polynomial roots - ORIGINAL WORKING VERSION"""
     coeffs = [4, 3, 2*a, theta1]
@@ -49,10 +49,7 @@ def find_x_steady_states_y0(a, theta1):
     return sorted(real_roots)
 
 def find_all_steady_states_robust(a, theta1, theta2, search_range=4.0, tolerance=1e-6):
-    """
-    ROBUST: Robust steady state finder that works correctly
-    Uses the working method but with better numerical stability
-    """
+
     fx, fy = create_cell_fate_dynamics(a, theta1, theta2)
     
     steady_states = []
@@ -102,9 +99,7 @@ def find_all_steady_states_robust(a, theta1, theta2, search_range=4.0, tolerance
     return sorted(steady_states)
 
 def classify_landscape_correctly(a, theta1, theta2):
-    """
-    ROBUST: Correct landscape classification based on actual steady states
-    """
+
     steady_states = find_all_steady_states_robust(a, theta1, theta2)
     n_states = len(steady_states)
     
@@ -175,7 +170,7 @@ def simulate_ensemble(x0, y0, fx, fy, u1_vec, u2_vec, sigma1, sigma2, dt, n_traj
 
     return vmapped(x0, y0, u1_vec, u2_vec, sigma1, sigma2, dt, keys)
 
-# SPIKE-OPTIMIZED Cost Function with Terminal Penalty and Exponential Weighting
+# Spike Optimization: Cost Function with Terminal Penalty and Exponential Weighting
 @functools.partial(jax.jit, static_argnums=(4, 5, 13))
 def compute_cost_with_components(coeffs, basis, x0, y0, fx, fy, sigma1, sigma2, dt, 
                                 targ_x, targ_y, lam, beta, n_traj, key, alpha_terminal=2.0):
@@ -219,7 +214,7 @@ def compute_cost_with_components(coeffs, basis, x0, y0, fx, fy, sigma1, sigma2, 
     
     return total_cost, j_target, j_reg, finals, j_terminal, j_terminal_penalty
 
-# HIGH-QUALITY optimizer with proper convergence
+# Optimizer with proper convergence
 def optimize_cell_fate_control(params, verbose=True, convergence_window=100, 
                               convergence_tol=1e-5, random_seed=42):
     if not verbose:  # For multistability analysis, print minimal info
@@ -372,7 +367,7 @@ def optimize_cell_fate_control(params, verbose=True, convergence_window=100,
             print(f"{epoch:5d}  | {total:10.6f} | {j_weighted:13.6f} | {j_terminal:13.6f} | "
                   f"{j_reg:12.6f} | {j_term_penalty:16.6f} | {max_control:7.3f} | {epoch_time:.4f}")
         
-        # HIGH-QUALITY convergence checking with patience
+        # Convergence checking with patience
         convergence_losses.append(float(loss))
         
         # Patience-based early stopping
@@ -1232,7 +1227,7 @@ def test_steady_state_scenarios(save_name="steady_state_analysis", verbose=True)
     
     return results_list
 
-# WORKING multistability analysis for systems that actually have multiple steady states
+# Working multistability analysis for systems that actually have multiple steady states
 def comprehensive_multistability_analysis(base_params, save_name="multistability_analysis", verbose=True):
     """
     ROBUST: Comprehensive analysis of controllability between all pairs of steady states
@@ -1264,7 +1259,7 @@ def comprehensive_multistability_analysis(base_params, save_name="multistability
         end_state = steady_states[end_idx]
         print(f"  {i+1}. {start_state} -> {end_state}")
     
-    # HIGH-QUALITY parameters for multistability analysis
+    # High-quality parameters for multistability analysis
     transition_params = base_params.copy()
     transition_params.update({
         'N': 1200,  # Large ensemble for good statistics
@@ -1281,7 +1276,7 @@ def comprehensive_multistability_analysis(base_params, save_name="multistability
     energy_matrix = np.zeros((len(steady_states), len(steady_states)))
     success_matrix = np.zeros((len(steady_states), len(steady_states)))
     
-    # Analyze each transition (HIGH-QUALITY VERSION - both directions)
+    # Analyzing each transition
     print(f"\nRunning HIGH-QUALITY transition analysis (all directions)...")
     print(f"Estimated time: ~{len(state_pairs)*2*90:.0f} seconds ({len(state_pairs)*2*90/60:.1f} minutes)")
     
@@ -1304,7 +1299,7 @@ def comprehensive_multistability_analysis(base_params, save_name="multistability
             'target_x': end_state[0], 'target_y': end_state[1]
         })
         
-        # Run HIGH-QUALITY optimization for this transition
+        # Running optimization for this transition
         start_time = time.time()
         results = optimize_cell_fate_control(params, verbose=False, 
                                            convergence_window=100, convergence_tol=1e-5,
@@ -1485,14 +1480,14 @@ def main():
         scenario_start = time.time()
         print(f"\n--- Testing: {scenario['name']} ---")
         
-        # Check landscape type first
+        # Checking the landscape type first
         landscape_type, steady_states = classify_landscape_correctly(
             scenario['params']['a'], scenario['params']['theta1'], scenario['params']['theta2']
         )
         print(f"Landscape: {landscape_type}")
         print(f"Steady states: {steady_states}")
         
-        # Set up HIGH-QUALITY parameters
+        # Setting up higher parameters 
         params = {
             'x0': 0.0, 'y0': 0.0,
             'D': 0.05, 'T': 5.0, 'dt': 0.01, 'N': 1000,  # Large ensemble
@@ -1540,7 +1535,7 @@ def main():
     x_roots = find_x_steady_states_y0(2.0, 5.0) 
     target_x = x_roots[0] if x_roots else 1.0
     
-    # Main demonstration with spike optimization
+    # Main parametsrs with spike optimization
     main_params = {
         'x0': 0.0, 'y0': 0.0,
         'target_x': target_x, 'target_y': 0.0,
