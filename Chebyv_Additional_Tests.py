@@ -2532,13 +2532,6 @@ def main():
         print(f"  Confirmed best order: {chebyshev_analysis['best_order']}")
         print(f"  Order comparison validated")
     
-    print()
-    print("Technical Insights:")
-    print("  • Order 320 provides superior control representation")
-    print("  • 12k epochs + ensemble 1200 = optimal configuration")
-    print("  • Terminal penalty prevents control spikes")
-    print("  • Low regularization enables better control authority")
-    
     print(f"{'='*80}")
 
 if __name__ == "__main__":
